@@ -12,3 +12,9 @@ type Event struct {
 	EventID     string `gorm:"type:varchar(255);unique;not null"`
 	Capacity    int    `gorm:"not null"`
 }
+
+type CreateEventDTO struct {
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	Capacity    int    `json:"capacity" validate:"required"`
+}

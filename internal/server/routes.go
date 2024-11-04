@@ -9,6 +9,8 @@ func (s *FiberServer) RegisterFiberRoutes() {
 
 	s.App.Get("/health", s.healthHandler)
 
+	s.App.Post("/event", s.createEvent)
+
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
