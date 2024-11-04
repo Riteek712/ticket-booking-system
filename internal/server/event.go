@@ -76,3 +76,46 @@ func (s *FiberServer) getEvent(c *fiber.Ctx) error {
 	// Respond with the found event
 	return c.JSON(event)
 }
+
+// updateEvent updates an existing event.
+// @Summary Update an event
+// @Description Update an event's name, description, and capacity by event ID
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param id path string true "Event ID"
+// @Param event body database.CreateEventDTO true "Updated Event Data"
+// @Success 200 {object} database.Event
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /events/{id} [put]
+func (s *FiberServer) updateEvent(c *fiber.Ctx) error {
+	eventID := c.Params("id")
+
+	var dto database.CreateEventDTO
+	if err := c.BodyParser(&dto); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request payload"})
+	}
+
+	// Fetch the event from the database
+	event, err := s.db.GetEvent(eventID)
+	if err != nil {
+		if err == database.ErrEventNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Event not found"})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not retrieve event"})
+	}
+
+	// Update the event fields
+	event.Name = dto.Name
+	event.Description = dto.Description
+	event.Capacity = dto.Capacity
+
+	// Save the updated event to the database
+	if err := s.db.UpdateEvent(event); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not update event"})
+	}
+
+	return c.JSON(event)
+}
