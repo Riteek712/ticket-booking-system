@@ -94,4 +94,45 @@ paths:
       summary: Get an event by ID
       tags:
       - events
+    put:
+      consumes:
+      - application/json
+      description: Update an event's name, description, and capacity by event ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated Event Data
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/database.CreateEventDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/database.Event'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update an event
+      tags:
+      - events
 swagger: "2.0"
