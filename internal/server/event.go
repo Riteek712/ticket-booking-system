@@ -119,3 +119,27 @@ func (s *FiberServer) updateEvent(c *fiber.Ctx) error {
 
 	return c.JSON(event)
 }
+
+// deleteEvent deletes an event by ID.
+// @Summary Delete an event
+// @Description Delete an event by event ID
+// @Tags events
+// @Param id path string true "Event ID"
+// @Success 204 {object} nil
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /events/{id} [delete]
+func (s *FiberServer) deleteEvent(c *fiber.Ctx) error {
+	eventID := c.Params("id")
+
+	// Try to delete the event from the database
+	if err := s.db.DeleteEvent(eventID); err != nil {
+		if err == database.ErrEventNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Event not found"})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not delete event"})
+	}
+
+	// Return a 204 No Content response if the deletion was successful
+	return c.SendStatus(fiber.StatusNoContent)
+}
