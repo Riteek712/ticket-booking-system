@@ -1,0 +1,99 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample Ticket-Booking API  server for a Fiber app.",
+        "title": "Ticket-Booking API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "127.0.0.1:8080",
+    "basePath": "/",
+    "paths": {
+        "/events": {
+            "post": {
+                "description": "Create a new event with name, description, and capacity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Create a new event",
+                "parameters": [
+                    {
+                        "description": "Event Data",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/database.CreateEventDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/database.Event"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "database.CreateEventDTO": {
+            "type": "object",
+            "required": [
+                "capacity",
+                "description",
+                "name"
+            ],
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "database.Event": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "eventID": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -8,6 +8,17 @@ import (
 	"github.com/google/uuid"
 )
 
+// createEvent creates a new event.
+// @Summary Create a new event
+// @Description Create a new event with name, description, and capacity
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param event body database.CreateEventDTO true "Event Data"
+// @Success 201 {object} database.Event
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /events [post]
 func (s *FiberServer) createEvent(c *fiber.Ctx) error {
 	var dto database.CreateEventDTO
 

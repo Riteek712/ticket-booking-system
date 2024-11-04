@@ -6,9 +6,16 @@ import (
 	"strconv"
 	"ticketing/internal/server"
 
+	_ "ticketing/docs" // Import Swagger docs here
+
 	_ "github.com/joho/godotenv/autoload"
 )
 
+// @title Ticket-Booking API
+// @version 1.0
+// @description This is a sample Ticket-Booking API  server for a Fiber app.
+// @host 127.0.0.1:8080
+// @BasePath /
 func main() {
 
 	server := server.New()

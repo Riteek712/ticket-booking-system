@@ -2,12 +2,13 @@ package server
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 )
 
 func (s *FiberServer) RegisterFiberRoutes() {
 	s.App.Get("/", s.HelloWorldHandler)
-
 	s.App.Get("/health", s.healthHandler)
+	s.App.Get("/swagger/*", swagger.HandlerDefault) // Default serves swagger at /swagger/index.html
 
 	s.App.Post("/event", s.createEvent)
 

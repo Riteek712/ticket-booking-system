@@ -6,7 +6,7 @@ import (
 
 // Event represents the event model in the database.
 type Event struct {
-	gorm.Model
+	gorm.Model  `swaggerignore:"true"`
 	Name        string `gorm:"type:varchar(255);not null"`
 	Description string `gorm:"type:text;not null"`
 	EventID     string `gorm:"type:varchar(255);unique;not null"`

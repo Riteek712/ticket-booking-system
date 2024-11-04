@@ -1,0 +1,66 @@
+basePath: /
+definitions:
+  database.CreateEventDTO:
+    properties:
+      capacity:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - capacity
+    - description
+    - name
+    type: object
+  database.Event:
+    properties:
+      capacity:
+        type: integer
+      description:
+        type: string
+      eventID:
+        type: string
+      name:
+        type: string
+    type: object
+host: 127.0.0.1:8080
+info:
+  contact: {}
+  description: This is a sample Ticket-Booking API  server for a Fiber app.
+  title: Ticket-Booking API
+  version: "1.0"
+paths:
+  /events:
+    post:
+      consumes:
+      - application/json
+      description: Create a new event with name, description, and capacity
+      parameters:
+      - description: Event Data
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/database.CreateEventDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/database.Event'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new event
+      tags:
+      - events
+swagger: "2.0"
