@@ -197,6 +197,61 @@
                     }
                 }
             }
+        },
+        "/tickets": {
+            "post": {
+                "description": "Book a ticket for an event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tickets"
+                ],
+                "summary": "Book a ticket",
+                "parameters": [
+                    {
+                        "description": "Ticket Booking Request",
+                        "name": "ticket",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/database.TicketBookingReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/database.Ticket"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -232,6 +287,49 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "database.Ticket": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "description": "Number of tickets booked",
+                    "type": "integer"
+                },
+                "email": {
+                    "description": "Email of the ticket holder",
+                    "type": "string"
+                },
+                "eventID": {
+                    "description": "ID of the event associated with the ticket",
+                    "type": "string"
+                },
+                "ticketID": {
+                    "description": "Unique ticket ID",
+                    "type": "string"
+                }
+            }
+        },
+        "database.TicketBookingReq": {
+            "type": "object",
+            "required": [
+                "capacity",
+                "email",
+                "event_id"
+            ],
+            "properties": {
+                "capacity": {
+                    "description": "Number of tickets to book",
+                    "type": "integer"
+                },
+                "email": {
+                    "description": "Email of the ticket holder",
+                    "type": "string"
+                },
+                "event_id": {
+                    "description": "ID of the event to book",
                     "type": "string"
                 }
             }

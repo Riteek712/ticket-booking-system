@@ -21,6 +21,8 @@ type Service interface {
 	GetEvent(uniqueID string) (*Event, error)
 	UpdateEvent(event *Event) error
 	DeleteEvent(uniqueID string) error
+	GetTotalTicketsSold(eventID string) (int, error)
+	CreateTicket(ticket *Ticket) error
 }
 
 type service struct {
@@ -52,6 +54,9 @@ func New() Service {
 
 	// Migrate the schema
 	if err := db.AutoMigrate(&Event{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := db.AutoMigrate(&Ticket{}); err != nil {
 		log.Fatal(err)
 	}
 
@@ -118,7 +123,6 @@ func (s *service) GetEvent(eventID string) (*Event, error) {
 			return nil, ErrEventNotFound
 		}
 		return nil, err
-		return nil, err
 	}
 	return &event, nil
 }
@@ -131,4 +135,18 @@ func (s *service) UpdateEvent(event *Event) error {
 // DeleteEvent deletes an event by its unique ID.
 func (s *service) DeleteEvent(uniqueID string) error {
 	return s.db.Delete(&Event{}, "unique_id = ?", uniqueID).Error
+}
+
+// GetTotalTicketsSold retrieves the total number of tickets sold for a specific event.
+func (s *service) GetTotalTicketsSold(eventID string) (int, error) {
+	var totalSold int64
+	if err := s.db.Model(&Ticket{}).Where("event_id = ?", eventID).Select("SUM(capacity)").Scan(&totalSold).Error; err != nil {
+		return 0, err
+	}
+	return int(totalSold), nil
+}
+
+// CreateTicket saves a new ticket in the database.
+func (s *service) CreateTicket(ticket *Ticket) error {
+	return s.db.Model(&Ticket{}).Create(ticket).Error
 }
