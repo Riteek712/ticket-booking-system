@@ -10,7 +10,8 @@ func (s *FiberServer) RegisterFiberRoutes() {
 	s.App.Get("/health", s.healthHandler)
 	s.App.Get("/swagger/*", swagger.HandlerDefault) // Default serves swagger at /swagger/index.html
 
-	s.App.Post("/event", s.createEvent)
+	s.App.Post("/events", s.createEvent)
+	s.App.Get("/events/:id", s.getEvent)
 
 }
 

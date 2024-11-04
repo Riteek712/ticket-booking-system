@@ -63,4 +63,35 @@ paths:
       summary: Create a new event
       tags:
       - events
+  /events/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an event's details by its unique event ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/database.Event'
+        "404":
+          description: Event not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get an event by ID
+      tags:
+      - events
 swagger: "2.0"
