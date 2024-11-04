@@ -48,3 +48,31 @@ func (s *FiberServer) createEvent(c *fiber.Ctx) error {
 	// Respond with the created event
 	return c.Status(fiber.StatusCreated).JSON(event)
 }
+
+// getEvent retrieves an event by ID.
+// @Summary Get an event by ID
+// @Description Retrieve an event's details by its unique event ID
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param id path string true "Event ID"
+// @Success 200 {object} database.Event
+// @Failure 404 {object} map[string]interface{} "Event not found"
+// @Failure 500 {object} map[string]interface{} "Server error"
+// @Router /events/{id} [get]
+func (s *FiberServer) getEvent(c *fiber.Ctx) error {
+	eventID := c.Params("id") // Get the event ID from the URL path
+
+	// Retrieve the event from the database
+	event, err := s.db.GetEvent(eventID)
+	if err != nil {
+		log.Printf("Error retrieving event: %v", err)
+		if err == database.ErrEventNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Event not found"})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not retrieve event"})
+	}
+
+	// Respond with the found event
+	return c.JSON(event)
+}

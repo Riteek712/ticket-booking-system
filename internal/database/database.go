@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -101,15 +102,22 @@ func (s *service) Close() error {
 	return sqlDB.Close()
 }
 
+// Defined the error for event not found
+var ErrEventNotFound = errors.New("event not found")
+
 // CreateEvent creates a new event in the database.
 func (s *service) CreateEvent(event *Event) error {
 	return s.db.Create(event).Error
 }
 
 // GetEvent retrieves an event by its unique ID.
-func (s *service) GetEvent(uniqueID string) (*Event, error) {
+func (s *service) GetEvent(eventID string) (*Event, error) {
 	var event Event
-	if err := s.db.First(&event, "unique_id = ?", uniqueID).Error; err != nil {
+	if err := s.db.First(&event, "event_id = ?", eventID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrEventNotFound
+		}
+		return nil, err
 		return nil, err
 	}
 	return &event, nil
