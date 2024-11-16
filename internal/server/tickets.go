@@ -44,7 +44,7 @@ func (s *FiberServer) bookTicket(c *fiber.Ctx) error {
 	remainingCapacity := event.Capacity - totalSold
 
 	// Check if the requested capacity exceeds the remaining capacity
-	if req.Capacity > remainingCapacity {
+	if req.Quantity > remainingCapacity {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Insufficient capacity for this event"})
 	}
 
@@ -53,7 +53,7 @@ func (s *FiberServer) bookTicket(c *fiber.Ctx) error {
 		Email:    req.Email,
 		TicketID: uuid.New().String(), // Generate a unique TicketID
 		EventID:  req.EventID,
-		Capacity: req.Capacity,
+		Quantity: req.Quantity,
 	}
 
 	// Call the CreateTicket method from the database service
