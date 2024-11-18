@@ -3,10 +3,16 @@ definitions:
   database.CreateEventDTO:
     properties:
       capacity:
+        description: Total capacity of the event
+        minimum: 1
         type: integer
       description:
+        description: Event description
         type: string
       name:
+        description: Event name
+        maxLength: 255
+        minLength: 3
         type: string
     required:
     - capacity
@@ -16,44 +22,101 @@ definitions:
   database.Event:
     properties:
       capacity:
+        description: Total capacity of the event
         type: integer
       description:
+        description: Event description
         type: string
       eventID:
+        description: Unique event identifier
         type: string
       name:
+        description: Name of the event
+        type: string
+      tickets:
+        description: Associated tickets
+        items:
+          $ref: '#/definitions/database.Ticket'
+        type: array
+    type: object
+  database.LoginDTO:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  database.SignUpDTO:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      phoneNumber:
         type: string
     type: object
   database.Ticket:
     properties:
-      capacity:
-        description: Number of tickets booked
-        type: integer
       email:
         description: Email of the ticket holder
         type: string
-      eventID:
+      event:
+        allOf:
+        - $ref: '#/definitions/database.Event'
+        description: Relationship with Event
+      event_id:
         description: ID of the event associated with the ticket
         type: string
+      quantity:
+        description: Number of tickets booked
+        type: integer
       ticketID:
         description: Unique ticket ID
         type: string
     type: object
   database.TicketBookingReq:
     properties:
-      capacity:
-        description: Number of tickets to book
-        type: integer
       email:
         description: Email of the ticket holder
         type: string
       event_id:
         description: ID of the event to book
         type: string
+      quantity:
+        description: Number of tickets to book
+        minimum: 1
+        type: integer
     required:
-    - capacity
     - email
     - event_id
+    - quantity
+    type: object
+  database.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      phone:
+        type: string
+      tickets_booked:
+        items:
+          $ref: '#/definitions/database.Ticket'
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
     type: object
 host: 127.0.0.1:8080
 info:
@@ -227,4 +290,74 @@ paths:
       summary: Book a ticket
       tags:
       - tickets
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint allows users to log in with their email and password.
+      parameters:
+      - description: User login details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/database.LoginDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful with token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: User not found or invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Incorrect password
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Error generating token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User login
+      tags:
+      - Users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint allows users to register by providing their details.
+      parameters:
+      - description: User registration details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/database.SignUpDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            $ref: '#/definitions/database.User'
+        "400":
+          description: Error while processing the request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - Users
 swagger: "2.0"
