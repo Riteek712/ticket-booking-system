@@ -11,8 +11,20 @@ type User struct {
 	Email         string    `gorm:"type:varchar(100);unique;not null" json:"email"`
 	PasswordHash  string    `gorm:"type:text;not null" json:"-"` // Avoid sending the password hash in JSON responses
 	Phone         string    `gorm:"type:varchar(15)" json:"phone"`
-	Role          string    `gorm:"type:varchar(50);default:'user'" json:"role"` // 'user', 'admin', etc.
 	CreatedAt     time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt     time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 	TicketsBooked []Ticket  `gorm:"foreignKey:UserID" json:"tickets_booked"`
+}
+
+type SignUpDTO struct {
+	Email     string `json:"email"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Password  string `json:"password"`
+	Phone     string `json:"phoneNumber"`
+}
+
+type LoginDTO struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

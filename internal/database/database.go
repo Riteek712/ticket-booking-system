@@ -23,6 +23,8 @@ type Service interface {
 	DeleteEvent(uniqueID string) error
 	GetTotalTicketsSold(eventID string) (int, error)
 	CreateTicket(ticket *Ticket) error
+	CreateUser(user *User) error
+	GetUserByEmail(email string) (*User, error)
 }
 
 type service struct {
@@ -57,6 +59,9 @@ func New() Service {
 		log.Fatal(err)
 	}
 	if err := db.AutoMigrate(&Ticket{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := db.AutoMigrate(&User{}); err != nil {
 		log.Fatal(err)
 	}
 
@@ -149,4 +154,16 @@ func (s *service) GetTotalTicketsSold(eventID string) (int, error) {
 // CreateTicket saves a new ticket in the database.
 func (s *service) CreateTicket(ticket *Ticket) error {
 	return s.db.Model(&Ticket{}).Create(ticket).Error
+}
+
+func (s *service) CreateUser(user *User) error {
+	return s.db.Model(&User{}).Create(user).Error
+}
+
+func (s *service) GetUserByEmail(email string) (*User, error) {
+	var res User
+	if err := s.db.Model(&User{}).Where("email = ?", email).First(&res).Error; err != nil {
+		return nil, err
+	}
+	return &res, nil
 }

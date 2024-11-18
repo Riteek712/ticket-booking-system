@@ -252,6 +252,113 @@
                     }
                 }
             }
+        },
+        "/users/login": {
+            "post": {
+                "description": "This endpoint allows users to log in with their email and password.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "User login",
+                "parameters": [
+                    {
+                        "description": "User login details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/database.LoginDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful with token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User not found or invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Incorrect password",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error generating token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/register": {
+            "post": {
+                "description": "This endpoint allows users to register by providing their details.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "User registration details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/database.SignUpDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "schema": {
+                            "$ref": "#/definitions/database.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Error while processing the request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -264,13 +371,19 @@
             ],
             "properties": {
                 "capacity": {
-                    "type": "integer"
+                    "description": "Total capacity of the event",
+                    "type": "integer",
+                    "minimum": 1
                 },
                 "description": {
+                    "description": "Event description",
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
+                    "description": "Event name",
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 3
                 }
             }
         },
@@ -278,15 +391,57 @@
             "type": "object",
             "properties": {
                 "capacity": {
+                    "description": "Total capacity of the event",
                     "type": "integer"
                 },
                 "description": {
+                    "description": "Event description",
                     "type": "string"
                 },
                 "eventID": {
+                    "description": "Unique event identifier",
                     "type": "string"
                 },
                 "name": {
+                    "description": "Name of the event",
+                    "type": "string"
+                },
+                "tickets": {
+                    "description": "Associated tickets",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/database.Ticket"
+                    }
+                }
+            }
+        },
+        "database.LoginDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "database.SignUpDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phoneNumber": {
                     "type": "string"
                 }
             }
@@ -294,17 +449,25 @@
         "database.Ticket": {
             "type": "object",
             "properties": {
-                "capacity": {
-                    "description": "Number of tickets booked",
-                    "type": "integer"
-                },
                 "email": {
                     "description": "Email of the ticket holder",
                     "type": "string"
                 },
-                "eventID": {
+                "event": {
+                    "description": "Relationship with Event",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/database.Event"
+                        }
+                    ]
+                },
+                "event_id": {
                     "description": "ID of the event associated with the ticket",
                     "type": "string"
+                },
+                "quantity": {
+                    "description": "Number of tickets booked",
+                    "type": "integer"
                 },
                 "ticketID": {
                     "description": "Unique ticket ID",
@@ -315,21 +478,57 @@
         "database.TicketBookingReq": {
             "type": "object",
             "required": [
-                "capacity",
                 "email",
-                "event_id"
+                "event_id",
+                "quantity"
             ],
             "properties": {
-                "capacity": {
-                    "description": "Number of tickets to book",
-                    "type": "integer"
-                },
                 "email": {
                     "description": "Email of the ticket holder",
                     "type": "string"
                 },
                 "event_id": {
                     "description": "ID of the event to book",
+                    "type": "string"
+                },
+                "quantity": {
+                    "description": "Number of tickets to book",
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "database.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "tickets_booked": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/database.Ticket"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }
