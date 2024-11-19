@@ -443,6 +443,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/database.Ticket"
                     }
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },

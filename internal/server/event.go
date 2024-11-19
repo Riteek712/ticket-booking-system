@@ -2,7 +2,9 @@ package server
 
 import (
 	"log"
+	"strings"
 	"ticketing/internal/database"
+	"ticketing/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -32,12 +34,27 @@ func (s *FiberServer) createEvent(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Name, Description, and Capacity are required"})
 	}
 
+	// Extract the user_id from the token
+	tokenString := c.Get("Authorization")
+	if tokenString == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Authorization token required"})
+	}
+
+	// Remove the 'Bearer ' prefix from the token string
+	tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
+
+	userID, err := utils.ExtractUserID(tokenString)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid or expired token"})
+	}
+
 	// Create a new event instance with a generated UUID
 	event := &database.Event{
 		EventID:     uuid.New().String(), // Assuming you have a UUID field in your Event struct
 		Name:        dto.Name,
 		Description: dto.Description,
 		Capacity:    dto.Capacity,
+		UserID:      userID,
 	}
 
 	// Call the CreateEvent method from the database service

@@ -4,20 +4,27 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-
-	jwtware "github.com/gofiber/contrib/jwt"
+	jwtware "github.com/gofiber/jwt/v3"
 )
 
-func JWTProtected(c *fiber.Ctx) error {
+// JWTProtected defines the JWT middleware configuration
+func JWTProtected() fiber.Handler {
+	secretKey := os.Getenv("JWT_SECRET")
+	if secretKey == "" {
+		panic("JWT_SECRET is not set in environment variables")
+	}
+
 	return jwtware.New(jwtware.Config{
-		SigningKey: jwtware.SigningKey{Key: []byte(os.Getenv("JWT_SECRET"))},
-		ContextKey: "jwt",
-		ErrorHandler: func(c *fiber.Ctx, err error) error {
-			// Return status 401 and failed authentication error.
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
-		},
-	})(c)
+		SigningKey:   []byte(secretKey),
+		ContextKey:   "jwt",           // Store token payload in this context key
+		ErrorHandler: jwtErrorHandler, // Custom error handler
+	})
+}
+
+// jwtErrorHandler handles JWT authentication errors
+func jwtErrorHandler(c *fiber.Ctx, err error) error {
+	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		"error": true,
+		"msg":   "Unauthorized: " + err.Error(),
+	})
 }

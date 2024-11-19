@@ -11,6 +11,7 @@ type Event struct {
 	Description string   `gorm:"type:text;not null"`                // Event description
 	EventID     string   `gorm:"type:varchar(255);unique;not null"` // Unique event identifier
 	Capacity    int      `gorm:"not null" json:"capacity"`          // Total capacity of the event
+	UserID      string   ` json:"user_id"`
 	Tickets     []Ticket `gorm:"foreignKey:EventID" json:"tickets"` // Associated tickets
 }
 

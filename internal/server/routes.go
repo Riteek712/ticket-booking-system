@@ -1,6 +1,8 @@
 package server
 
 import (
+	"ticketing/internal/middleware"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
 )
@@ -13,12 +15,12 @@ func (s *FiberServer) RegisterFiberRoutes() {
 	s.App.Post("/users/register", s.RegisterUser)
 	s.App.Post("/users/login", s.LoginUser)
 
-	s.App.Post("/events", s.createEvent)
-	s.App.Get("/events/:id", s.getEvent)
-	s.App.Put("/events/:id", s.updateEvent)
-	s.App.Delete("/events/:id", s.deleteEvent)
+	s.App.Post("/events", middleware.JWTProtected(), s.createEvent)
+	s.App.Get("/events/:id", middleware.JWTProtected(), s.getEvent)
+	s.App.Put("/events/:id", middleware.JWTProtected(), s.updateEvent)
+	s.App.Delete("/events/:id", middleware.JWTProtected(), s.deleteEvent)
 
-	s.App.Post("/tickets", s.bookTicket)
+	s.App.Post("/tickets", middleware.JWTProtected(), s.bookTicket)
 
 }
 
