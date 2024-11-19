@@ -72,10 +72,12 @@ definitions:
         description: ID of the event associated with the ticket
         type: string
       quantity:
-        description: Number of tickets booked
         type: integer
       ticketID:
         description: Unique ticket ID
+        type: string
+      user_id:
+        description: Number of tickets booked
         type: string
     type: object
   database.TicketBookingReq:
@@ -154,6 +156,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - BearerAuth: []
       summary: Create a new event
       tags:
       - events
@@ -179,6 +183,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete an event
       tags:
       - events
@@ -209,6 +215,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - BearerAuth: []
       summary: Get an event by ID
       tags:
       - events
@@ -250,6 +258,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - BearerAuth: []
       summary: Update an event
       tags:
       - events
@@ -287,6 +297,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - BearerAuth: []
       summary: Book a ticket
       tags:
       - tickets
@@ -360,4 +372,9 @@ paths:
       summary: Register a new user
       tags:
       - Users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
