@@ -19,6 +19,7 @@ import (
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
+// @Security BearerAuth
 // @Router /tickets [post]
 func (s *FiberServer) bookTicket(c *fiber.Ctx) error {
 	var req database.TicketBookingReq

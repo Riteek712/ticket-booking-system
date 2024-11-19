@@ -20,6 +20,9 @@ func main() {
 
 	server := server.New()
 
+	// @securityDefinitions.apiKey BearerAuth
+	// @in header
+	// @name Authorization
 	server.RegisterFiberRoutes()
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	err := server.Listen(fmt.Sprintf(":%d", port))

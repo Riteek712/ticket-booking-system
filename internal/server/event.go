@@ -19,6 +19,7 @@ import (
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /events [post]
+// @Security BearerAuth
 func (s *FiberServer) createEvent(c *fiber.Ctx) error {
 	var dto database.CreateEventDTO
 
@@ -60,6 +61,7 @@ func (s *FiberServer) createEvent(c *fiber.Ctx) error {
 // @Failure 404 {object} map[string]interface{} "Event not found"
 // @Failure 500 {object} map[string]interface{} "Server error"
 // @Router /events/{id} [get]
+// @Security BearerAuth
 func (s *FiberServer) getEvent(c *fiber.Ctx) error {
 	eventID := c.Params("id") // Get the event ID from the URL path
 
@@ -90,6 +92,7 @@ func (s *FiberServer) getEvent(c *fiber.Ctx) error {
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /events/{id} [put]
+// @Security BearerAuth
 func (s *FiberServer) updateEvent(c *fiber.Ctx) error {
 	eventID := c.Params("id")
 
@@ -129,6 +132,7 @@ func (s *FiberServer) updateEvent(c *fiber.Ctx) error {
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /events/{id} [delete]
+// @Security BearerAuth
 func (s *FiberServer) deleteEvent(c *fiber.Ctx) error {
 	eventID := c.Params("id")
 

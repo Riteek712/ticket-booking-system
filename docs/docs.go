@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/events": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new event with name, description, and capacity",
                 "consumes": [
                     "application/json"
@@ -65,6 +70,11 @@ const docTemplate = `{
         },
         "/events/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve an event's details by its unique event ID",
                 "consumes": [
                     "application/json"
@@ -109,6 +119,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update an event's name, description, and capacity by event ID",
                 "consumes": [
                     "application/json"
@@ -169,6 +184,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete an event by event ID",
                 "tags": [
                     "events"
@@ -206,6 +226,11 @@ const docTemplate = `{
         },
         "/tickets": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Book a ticket for an event",
                 "consumes": [
                     "application/json"
@@ -472,11 +497,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "quantity": {
-                    "description": "Number of tickets booked",
                     "type": "integer"
                 },
                 "ticketID": {
                     "description": "Unique ticket ID",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "Number of tickets booked",
                     "type": "string"
                 }
             }
@@ -538,6 +566,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
