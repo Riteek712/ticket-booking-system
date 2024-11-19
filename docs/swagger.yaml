@@ -38,6 +38,8 @@ definitions:
         items:
           $ref: '#/definitions/database.Ticket'
         type: array
+      user_id:
+        type: string
     type: object
   database.LoginDTO:
     properties:
