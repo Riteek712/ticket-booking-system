@@ -347,49 +347,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/users/register": {
-            "post": {
-                "description": "This endpoint allows users to register by providing their details.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Register a new user",
-                "parameters": [
-                    {
-                        "description": "User registration details",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/database.SignUpDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "User registered successfully",
-                        "schema": {
-                            "$ref": "#/definitions/database.User"
-                        }
-                    },
-                    "400": {
-                        "description": "Error while processing the request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -480,26 +437,6 @@ const docTemplate = `{
                 }
             }
         },
-        "database.SignUpDTO": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "phoneNumber": {
-                    "type": "string"
-                }
-            }
-        },
         "database.Ticket": {
             "type": "object",
             "properties": {
@@ -554,41 +491,6 @@ const docTemplate = `{
                     "minimum": 1
                 }
             }
-        },
-        "database.User": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "tickets_booked": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/database.Ticket"
-                    }
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
         }
     },
     "securityDefinitions": {
@@ -607,7 +509,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Ticket-Booking API",
-	Description:      "This is a sample Ticket-Booking API  server for a Fiber app.",
+	Description:      "This is a sample Ticket-Booking API server for a Fiber app.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

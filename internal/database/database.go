@@ -42,33 +42,27 @@ var (
 )
 
 // New initializes the database connection using GORM.
-func New() Service {
+func New() (Service, error) {
 	if dbInstance != nil {
-		return dbInstance
+		return dbInstance, nil
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable search_path=%s",
 		host, username, password, database, port, schema)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
 	// Migrate the schema
-	if err := db.AutoMigrate(&Event{}); err != nil {
-		log.Fatal(err)
-	}
-	if err := db.AutoMigrate(&Ticket{}); err != nil {
-		log.Fatal(err)
-	}
-	if err := db.AutoMigrate(&User{}); err != nil {
-		log.Fatal(err)
+	if err := db.AutoMigrate(&Event{}, &Ticket{}, &User{}); err != nil {
+		return nil, fmt.Errorf("failed to migrate database schema: %w", err)
 	}
 
 	dbInstance = &service{
 		db: db,
 	}
-	return dbInstance
+	return dbInstance, nil
 }
 
 // Health checks the health of the database connection.
