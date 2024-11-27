@@ -410,6 +410,9 @@ const docTemplate = `{
                     "description": "Event description",
                     "type": "string"
                 },
+                "event_details": {
+                    "$ref": "#/definitions/database.EventDetailsStruct"
+                },
                 "name": {
                     "description": "Event name",
                     "type": "string",
@@ -433,6 +436,14 @@ const docTemplate = `{
                     "description": "Unique event identifier",
                     "type": "string"
                 },
+                "event_details": {
+                    "description": "Additional event details (not stored in DB)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/database.EventDetailsStruct"
+                        }
+                    ]
+                },
                 "name": {
                     "description": "Name of the event",
                     "type": "string"
@@ -446,6 +457,15 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "database.EventDetailsStruct": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "object",
+                    "additionalProperties": true
                 }
             }
         },

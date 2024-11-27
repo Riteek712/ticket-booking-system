@@ -50,11 +50,12 @@ func (s *FiberServer) createEvent(c *fiber.Ctx) error {
 
 	// Create a new event instance with a generated UUID
 	event := &database.Event{
-		EventID:     uuid.New().String(), // Assuming you have a UUID field in your Event struct
-		Name:        dto.Name,
-		Description: dto.Description,
-		Capacity:    dto.Capacity,
-		UserID:      userID,
+		EventID:      uuid.New().String(), // Assuming you have a UUID field in your Event struct
+		Name:         dto.Name,
+		Description:  dto.Description,
+		Capacity:     dto.Capacity,
+		UserID:       userID,
+		EventDetails: dto.EventDetails,
 	}
 
 	// Call the CreateEvent method from the database service
