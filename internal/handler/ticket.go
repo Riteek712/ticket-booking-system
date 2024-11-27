@@ -1,4 +1,4 @@
-package server
+package handler
 
 import (
 	"log"
@@ -8,7 +8,17 @@ import (
 	"github.com/google/uuid"
 )
 
-// bookTicket handles ticket booking requests.
+// TicketHandler represents the ticket-related HTTP handlers
+type TicketHandler struct {
+	db database.Service // Assume DatabaseService interface manages database operations
+}
+
+// NewTicketHandler creates a new instance of TicketHandler
+func NewTicketHandler(db database.Service) *TicketHandler {
+	return &TicketHandler{db: db}
+}
+
+// BookTicket handles ticket booking requests.
 // @Summary Book a ticket
 // @Description Book a ticket for an event
 // @Tags tickets
@@ -21,7 +31,7 @@ import (
 // @Failure 500 {object} map[string]interface{}
 // @Security BearerAuth
 // @Router /tickets [post]
-func (s *FiberServer) bookTicket(c *fiber.Ctx) error {
+func (h *TicketHandler) BookTicket(c *fiber.Ctx) error {
 	var req database.TicketBookingReq
 
 	// Parse the JSON body into the request struct
@@ -30,35 +40,37 @@ func (s *FiberServer) bookTicket(c *fiber.Ctx) error {
 	}
 
 	// Check if the event exists
-	event, err := s.db.GetEvent(req.EventID) // Assuming you have a GetEventByID function
+	event, err := h.db.GetEvent(req.EventID)
 	if err != nil {
+		log.Printf("Error fetching event: %v", err)
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Event not found"})
 	}
 
 	// Calculate total sold tickets
-	totalSold, err := s.db.GetTotalTicketsSold(req.EventID)
+	totalSold, err := h.db.GetTotalTicketsSold(req.EventID)
 	if err != nil {
+		log.Printf("Error fetching sold tickets: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not calculate total sold tickets"})
 	}
 
 	// Calculate remaining capacity
 	remainingCapacity := event.Capacity - totalSold
 
-	// Check if the requested capacity exceeds the remaining capacity
+	// Check if the requested quantity exceeds the remaining capacity
 	if req.Quantity > remainingCapacity {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Insufficient capacity for this event"})
 	}
 
 	// Create a new ticket instance
 	ticket := &database.Ticket{
-		Email:    req.Email,
 		TicketID: uuid.New().String(), // Generate a unique TicketID
 		EventID:  req.EventID,
+		Email:    req.Email,
 		Quantity: req.Quantity,
 	}
 
-	// Call the CreateTicket method from the database service
-	if err := s.db.CreateTicket(ticket); err != nil {
+	// Save the ticket to the database
+	if err := h.db.CreateTicket(ticket); err != nil {
 		log.Printf("Error creating ticket: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not create ticket"})
 	}
