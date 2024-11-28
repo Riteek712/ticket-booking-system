@@ -113,6 +113,18 @@ func (h *EventHandler) GetEvent(c *fiber.Ctx) error {
 func (h *EventHandler) UpdateEvent(c *fiber.Ctx) error {
 	eventID := c.Params("id")
 
+	tokenString := c.Get("Authorization")
+	if tokenString == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Authorization token required"})
+	}
+
+	tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
+
+	userID, err := utils.ExtractUserID(tokenString)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid or expired token"})
+	}
+
 	var dto database.CreateEventDTO
 	if err := c.BodyParser(&dto); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request payload"})
@@ -124,6 +136,10 @@ func (h *EventHandler) UpdateEvent(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Event not found"})
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not retrieve event"})
+	}
+
+	if event.UserID != userID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Your are not allowed to edit the datafor this event."})
 	}
 
 	event.Name = dto.Name
@@ -151,7 +167,19 @@ func (h *EventHandler) UpdateEvent(c *fiber.Ctx) error {
 func (h *EventHandler) DeleteEvent(c *fiber.Ctx) error {
 	eventID := c.Params("id")
 
-	if err := h.DB.DeleteEvent(eventID); err != nil {
+	tokenString := c.Get("Authorization")
+	if tokenString == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Authorization token required"})
+	}
+
+	tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
+
+	userID, err := utils.ExtractUserID(tokenString)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid or expired token"})
+	}
+
+	if err := h.DB.DeleteEvent(eventID, userID); err != nil {
 		if err == database.ErrEventNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Event not found"})
 		}

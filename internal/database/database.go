@@ -20,7 +20,7 @@ type Service interface {
 	CreateEvent(event *Event) error
 	GetEvent(uniqueID string) (*Event, error)
 	UpdateEvent(event *Event) error
-	DeleteEvent(uniqueID string) error
+	DeleteEvent(uniqueID, userId string) error
 	GetTotalTicketsSold(eventID string) (int, error)
 	CreateTicket(ticket *Ticket) error
 	CreateUser(user *User) error
@@ -132,8 +132,8 @@ func (s *service) UpdateEvent(event *Event) error {
 }
 
 // DeleteEvent deletes an event by its unique ID.
-func (s *service) DeleteEvent(uniqueID string) error {
-	return s.db.Delete(&Event{}, "unique_id = ?", uniqueID).Error
+func (s *service) DeleteEvent(uniqueID, userID string) error {
+	return s.db.Delete(&Event{}, "unique_id = ? AND user_id = ?", uniqueID, userID).Error
 }
 
 // GetTotalTicketsSold retrieves the total number of tickets sold for a specific event.
