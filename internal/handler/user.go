@@ -19,18 +19,17 @@ func NewUserHandler(db database.Service) *UserHandler {
 	return &UserHandler{db: db}
 }
 
-// LoginUser godoc
-// @Summary User login
-// @Description This endpoint allows users to log in with their email and password.
+// RegisterUser godoc
+// @Summary User registration
+// @Description This endpoint allows users to register with their details.
 // @Tags Users
 // @Accept json
 // @Produce json
-// @Param body body database.LoginDTO true "User login details"
-// @Success 200 {object} map[string]string "Login successful with token"
-// @Failure 400 {object} map[string]string "User not found or invalid request"
-// @Failure 401 {object} map[string]string "Incorrect password"
-// @Failure 500 {object} map[string]string "Error generating token"
-// @Router /users/login [post]
+// @Param body body database.SignUpDTO true "User registration details"
+// @Success 201 {object} map[string]string "Registration successful"
+// @Failure 400 {object} map[string]string "Validation failed"
+// @Failure 500 {object} map[string]string "Server error"
+// @Router /users/register [post]
 func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
 	var req database.SignUpDTO
 	if err := c.BodyParser(&req); err != nil {
@@ -59,7 +58,18 @@ func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(user)
 }
 
-// LoginUser handles user login.
+// LoginUser godoc
+// @Summary User login
+// @Description This endpoint allows users to log in with their email and password.
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param body body database.LoginDTO true "User login details"
+// @Success 200 {object} map[string]string "Login successful with token"
+// @Failure 400 {object} map[string]string "Validation failed"
+// @Failure 401 {object} map[string]string "Incorrect password"
+// @Failure 500 {object} map[string]string "Error generating token"
+// @Router /users/login [post]
 func (h *UserHandler) LoginUser(c *fiber.Ctx) error {
 	var req database.LoginDTO
 	if err := c.BodyParser(&req); err != nil {
