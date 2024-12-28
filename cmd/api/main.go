@@ -4,6 +4,7 @@ import (
 	"log"
 	"ticketing/internal/database"
 	"ticketing/internal/router"
+	"ticketing/internal/utils"
 
 	_ "ticketing/docs" // Import the generated docs
 
@@ -20,6 +21,9 @@ import (
 func main() {
 	// Initialize a new Fiber app
 	app := fiber.New()
+
+	// Initialize Redis
+	utils.InitRedis()
 
 	// Set up the database connection
 	db, err := database.New() // Assuming you have a function that sets up the database
