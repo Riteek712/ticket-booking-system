@@ -60,6 +60,19 @@ definitions:
       password:
         type: string
     type: object
+  database.SignUpDTO:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      phoneNumber:
+        type: string
+    type: object
   database.Ticket:
     properties:
       email:
@@ -302,7 +315,7 @@ paths:
               type: string
             type: object
         "400":
-          description: User not found or invalid request
+          description: Validation failed
           schema:
             additionalProperties:
               type: string
@@ -320,6 +333,42 @@ paths:
               type: string
             type: object
       summary: User login
+      tags:
+      - Users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint allows users to register with their details.
+      parameters:
+      - description: User registration details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/database.SignUpDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Registration successful
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Validation failed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User registration
       tags:
       - Users
 securityDefinitions:
