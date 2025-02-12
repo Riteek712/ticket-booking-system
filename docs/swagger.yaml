@@ -288,8 +288,6 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      security:
-      - BearerAuth: []
       summary: Book a ticket
       tags:
       - tickets

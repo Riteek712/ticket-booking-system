@@ -226,11 +226,6 @@ const docTemplate = `{
         },
         "/tickets": {
             "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Book a ticket for an event",
                 "consumes": [
                     "application/json"

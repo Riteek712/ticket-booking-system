@@ -29,7 +29,6 @@ func NewTicketHandler(db database.Service) *TicketHandler {
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Security BearerAuth
 // @Router /tickets [post]
 func (h *TicketHandler) BookTicket(c *fiber.Ctx) error {
 	var req database.TicketBookingReq
