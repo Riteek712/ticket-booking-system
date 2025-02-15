@@ -5,12 +5,13 @@ import "gorm.io/gorm"
 // Ticket represents a ticket for an event.
 type Ticket struct {
 	gorm.Model `swaggerignore:"true"`
-	Email      string `gorm:"type:varchar(255);not null"`        // Email of the ticket holder
-	TicketID   string `gorm:"type:varchar(255);unique;not null"` // Unique ticket ID
-	EventID    string `gorm:"not null" json:"event_id"`          // ID of the event associated with the ticket
+	Email      string `gorm:"type:varchar(255);not null"`
+	TicketID   string `gorm:"type:varchar(255);unique;not null"`
+	EventID    string `gorm:"not null" json:"event_id"`
+	UserID     string `gorm:"not null" json:"user_id"` // Ensure this is string
 	Quantity   int    `gorm:"not null" json:"quantity"`
-	// UserID     string `gorm:"not null" json:"user_id"`      // Number of tickets booked
-	Event Event `gorm:"constraint:OnDelete:CASCADE;"` // Relationship with Event
+	// Event      Event  `gorm:"constraint:OnDelete:CASCADE;"`
+	// User       User   `gorm:"foreignKey:UserID;references:UserID"` // Explicitly reference UserID
 }
 
 // TicketBookingReq represents the request payload for booking a ticket.

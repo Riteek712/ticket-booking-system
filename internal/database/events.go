@@ -16,8 +16,8 @@ type Event struct {
 	EventID      string             `gorm:"type:varchar(255);unique;not null"` // Unique event identifier
 	Capacity     int                `gorm:"not null" json:"capacity"`          // Total capacity of the event
 	UserID       string             `json:"user_id"`
-	EventDetails EventDetailsStruct ` gorm:"type:jsonb" json:"event_details"`  // Additional event details (not stored in DB)
-	Tickets      []Ticket           `gorm:"foreignKey:EventID" json:"tickets"` // Associated tickets
+	EventDetails EventDetailsStruct ` gorm:"type:jsonb" json:"event_details"` // Additional event details (not stored in DB)
+	// Tickets      []Ticket           `gorm:"foreignKey:EventID" json:"tickets"` // Associated tickets
 }
 
 // CreateEventDTO represents the data for creating a new event.
