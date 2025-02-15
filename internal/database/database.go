@@ -55,7 +55,10 @@ func New() (Service, error) {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	// Migrate the schema
+	// Disable foreign key checks
+	db.Exec("SET CONSTRAINTS ALL DEFERRED;")
+
+	// Ensure the correct order of migration
 	if err := db.AutoMigrate(&Event{}, &Ticket{}, &User{}); err != nil {
 		return nil, fmt.Errorf("failed to migrate database schema: %w", err)
 	}
@@ -140,7 +143,10 @@ func (s *service) DeleteEvent(uniqueID, userID string) error {
 // GetTotalTicketsSold retrieves the total number of tickets sold for a specific event.
 func (s *service) GetTotalTicketsSold(eventID string) (int, error) {
 	var totalSold int64
-	if err := s.db.Model(&Ticket{}).Where("event_id = ?", eventID).Select("SUM(capacity)").Scan(&totalSold).Error; err != nil {
+	if err := s.db.Model(&Ticket{}).
+		Where("event_id = ?", eventID).
+		Select("COALESCE(SUM(quantity), 0)").
+		Scan(&totalSold).Error; err != nil {
 		return 0, err
 	}
 	return int(totalSold), nil
