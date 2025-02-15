@@ -9,12 +9,13 @@ type Ticket struct {
 	TicketID   string `gorm:"type:varchar(255);unique;not null"` // Unique ticket ID
 	EventID    string `gorm:"not null" json:"event_id"`          // ID of the event associated with the ticket
 	Quantity   int    `gorm:"not null" json:"quantity"`
-	UserID     string `gorm:"not null" json:"user_id"`      // Number of tickets booked
-	Event      Event  `gorm:"constraint:OnDelete:CASCADE;"` // Relationship with Event
+	// UserID     string `gorm:"not null" json:"user_id"`      // Number of tickets booked
+	Event Event `gorm:"constraint:OnDelete:CASCADE;"` // Relationship with Event
 }
 
 // TicketBookingReq represents the request payload for booking a ticket.
 type TicketBookingReq struct {
+	TicketID string `json:"ticket_id"`
 	Email    string `json:"email" validate:"required,email"`    // Email of the ticket holder
 	EventID  string `json:"event_id" validate:"required"`       // ID of the event to book
 	Quantity int    `json:"quantity" validate:"required,min=1"` // Number of tickets to book

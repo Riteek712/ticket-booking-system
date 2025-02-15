@@ -23,6 +23,7 @@ type Service interface {
 	DeleteEvent(uniqueID, userId string) error
 	GetTotalTicketsSold(eventID string) (int, error)
 	CreateTicket(ticket *Ticket) error
+	GetTicket(ticketID string) (*Ticket, error)
 	CreateUser(user *User) error
 	GetUserByEmail(email string) (*User, error)
 }
@@ -148,6 +149,16 @@ func (s *service) GetTotalTicketsSold(eventID string) (int, error) {
 // CreateTicket saves a new ticket in the database.
 func (s *service) CreateTicket(ticket *Ticket) error {
 	return s.db.Model(&Ticket{}).Create(ticket).Error
+}
+func (s *service) GetTicket(ticketID string) (*Ticket, error) {
+	var ticket Ticket
+	if err := s.db.First(&ticket, "ticket_id = ?", ticketID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("ticket not found")
+		}
+		return nil, err
+	}
+	return &ticket, nil
 }
 
 func (s *service) CreateUser(user *User) error {

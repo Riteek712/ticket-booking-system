@@ -31,6 +31,7 @@ func NewUserHandler(db database.Service) *UserHandler {
 // @Failure 500 {object} map[string]string "Server error"
 // @Router /users/register [post]
 func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
+	print("entered code")
 	var req database.SignUpDTO
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

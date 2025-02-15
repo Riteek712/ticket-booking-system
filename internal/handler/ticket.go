@@ -3,78 +3,101 @@ package handler
 import (
 	"log"
 	"ticketing/internal/database"
+	"ticketing/internal/queue"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
 // TicketHandler represents the ticket-related HTTP handlers
+// @BasePath /api/v1
+
 type TicketHandler struct {
-	db database.Service // Assume DatabaseService interface manages database operations
+	db    database.Service
+	queue queue.Service // RabbitMQ service
 }
 
 // NewTicketHandler creates a new instance of TicketHandler
-func NewTicketHandler(db database.Service) *TicketHandler {
-	return &TicketHandler{db: db}
+func NewTicketHandler(db database.Service, queue queue.Service) *TicketHandler {
+	return &TicketHandler{db: db, queue: queue}
 }
 
-// BookTicket handles ticket booking requests.
-// @Summary Book a ticket
-// @Description Book a ticket for an event
-// @Tags tickets
-// @Accept json
-// @Produce json
-// @Param ticket body database.TicketBookingReq true "Ticket Booking Request"
-// @Success 201 {object} database.Ticket
-// @Failure 400 {object} map[string]interface{}
+// GetQueueLength returns the number of pending ticket requests for an event
+// @Summary Get event queue length
+// @Description Returns the number of pending ticket requests for a specific event
+// @Tags Tickets
+// @Accept  json
+// @Produce  json
+// @Param eventID path string true "Event ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /queue/{eventID}/length [get]
+func (h *TicketHandler) GetQueueLength(c *fiber.Ctx) error {
+	eventID := c.Params("eventID")
+
+	queueLength, err := h.queue.GetQueueLength(eventID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not fetch queue length"})
+	}
+
+	return c.JSON(fiber.Map{"event_id": eventID, "queue_length": queueLength})
+}
+
+// GetTicketDetails fetches a ticket and the associated event information
+// @Summary Get ticket details
+// @Description Fetches details of a specific ticket along with the associated event information
+// @Tags Tickets
+// @Accept  json
+// @Produce  json
+// @Param ticketID path string true "Ticket ID"
+// @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Security BearerAuth
-// @Router /tickets [post]
-func (h *TicketHandler) BookTicket(c *fiber.Ctx) error {
+// @Router /ticket/{ticketID} [get]
+func (h *TicketHandler) GetTicketDetails(c *fiber.Ctx) error {
+	ticketID := c.Params("ticketID")
+
+	// Fetch ticket details
+	ticket, err := h.db.GetTicket(ticketID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Ticket not found"})
+	}
+
+	// Fetch associated event details
+	event, err := h.db.GetEvent(ticket.EventID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Event details not found"})
+	}
+
+	return c.JSON(fiber.Map{"ticket": ticket, "event": event})
+}
+
+// AddTicketToQueue enqueues a ticket booking request to RabbitMQ
+// @Summary Add ticket booking request to queue
+// @Description Enqueues a ticket booking request for an event in RabbitMQ
+// @Tags Tickets
+// @Accept  json
+// @Produce  json
+// @Param request body database.TicketBookingReq true "Ticket booking request payload"
+// @Success 202 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /ticket/book [post]
+func (h *TicketHandler) AddTicketToQueue(c *fiber.Ctx) error {
 	var req database.TicketBookingReq
 
-	// Parse the JSON body into the request struct
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request payload"})
 	}
 
-	// Check if the event exists
-	event, err := h.db.GetEvent(req.EventID)
-	if err != nil {
-		log.Printf("Error fetching event: %v", err)
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Event not found"})
+	// Generate a unique TicketID
+	req.TicketID = uuid.New().String()
+
+	// Publish the request to RabbitMQ
+	if err := h.queue.PublishTicketRequest(req); err != nil {
+		log.Printf("Failed to enqueue ticket request: %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not enqueue ticket request"})
 	}
 
-	// Calculate total sold tickets
-	totalSold, err := h.db.GetTotalTicketsSold(req.EventID)
-	if err != nil {
-		log.Printf("Error fetching sold tickets: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not calculate total sold tickets"})
-	}
-
-	// Calculate remaining capacity
-	remainingCapacity := event.Capacity - totalSold
-
-	// Check if the requested quantity exceeds the remaining capacity
-	if req.Quantity > remainingCapacity {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Insufficient capacity for this event"})
-	}
-
-	// Create a new ticket instance
-	ticket := &database.Ticket{
-		TicketID: uuid.New().String(), // Generate a unique TicketID
-		EventID:  req.EventID,
-		Email:    req.Email,
-		Quantity: req.Quantity,
-	}
-
-	// Save the ticket to the database
-	if err := h.db.CreateTicket(ticket); err != nil {
-		log.Printf("Error creating ticket: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not create ticket"})
-	}
-
-	// Respond with the created ticket
-	return c.Status(fiber.StatusCreated).JSON(ticket)
+	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{"message": "Ticket booking request added to queue", "ticket_id": req.TicketID})
 }

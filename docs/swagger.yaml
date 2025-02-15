@@ -106,12 +106,14 @@ definitions:
         description: Number of tickets to book
         minimum: 1
         type: integer
+      ticket_id:
+        type: string
     required:
     - email
     - event_id
     - quantity
     type: object
-host: 127.0.0.1:8080
+host: 127.0.0.1:3000
 info:
   contact: {}
   description: This is a sample Ticket-Booking API server for a Fiber app.
@@ -254,27 +256,50 @@ paths:
       summary: Update an event
       tags:
       - events
-  /tickets:
-    post:
+  /queue/{eventID}/length:
+    get:
       consumes:
       - application/json
-      description: Book a ticket for an event
+      description: Returns the number of pending ticket requests for a specific event
       parameters:
-      - description: Ticket Booking Request
-        in: body
-        name: ticket
+      - description: Event ID
+        in: path
+        name: eventID
         required: true
-        schema:
-          $ref: '#/definitions/database.TicketBookingReq'
+        type: string
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/database.Ticket'
-        "400":
-          description: Bad Request
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get event queue length
+      tags:
+      - Tickets
+  /ticket/{ticketID}:
+    get:
+      consumes:
+      - application/json
+      description: Fetches details of a specific ticket along with the associated
+        event information
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: ticketID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
           schema:
             additionalProperties: true
             type: object
@@ -288,11 +313,42 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      security:
-      - BearerAuth: []
-      summary: Book a ticket
+      summary: Get ticket details
       tags:
-      - tickets
+      - Tickets
+  /ticket/book:
+    post:
+      consumes:
+      - application/json
+      description: Enqueues a ticket booking request for an event in RabbitMQ
+      parameters:
+      - description: Ticket booking request payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/database.TicketBookingReq'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add ticket booking request to queue
+      tags:
+      - Tickets
   /users/login:
     post:
       consumes:

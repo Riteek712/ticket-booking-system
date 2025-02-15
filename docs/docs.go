@@ -224,14 +224,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/tickets": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Book a ticket for an event",
+        "/queue/{eventID}/length": {
+            "get": {
+                "description": "Returns the number of pending ticket requests for a specific event",
                 "consumes": [
                     "application/json"
                 ],
@@ -239,13 +234,53 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tickets"
+                    "Tickets"
                 ],
-                "summary": "Book a ticket",
+                "summary": "Get event queue length",
                 "parameters": [
                     {
-                        "description": "Ticket Booking Request",
-                        "name": "ticket",
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/ticket/book": {
+            "post": {
+                "description": "Enqueues a ticket booking request for an event in RabbitMQ",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tickets"
+                ],
+                "summary": "Add ticket booking request to queue",
+                "parameters": [
+                    {
+                        "description": "Ticket booking request payload",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -254,14 +289,55 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "202": {
+                        "description": "Accepted",
                         "schema": {
-                            "$ref": "#/definitions/database.Ticket"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/ticket/{ticketID}": {
+            "get": {
+                "description": "Fetches details of a specific ticket along with the associated event information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tickets"
+                ],
+                "summary": "Get ticket details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Ticket ID",
+                        "name": "ticketID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -564,6 +640,9 @@ const docTemplate = `{
                     "description": "Number of tickets to book",
                     "type": "integer",
                     "minimum": 1
+                },
+                "ticket_id": {
+                    "type": "string"
                 }
             }
         }
@@ -580,7 +659,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "127.0.0.1:8080",
+	Host:             "127.0.0.1:3000",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Ticket-Booking API",
