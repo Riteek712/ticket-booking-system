@@ -1,6 +1,8 @@
 module ticketing
 
-go 1.22.0
+go 1.23
+
+toolchain go1.23.6
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.5
@@ -29,6 +31,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
+	github.com/resend/resend-go/v2 v2.15.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/swaggo/files v1.0.1 // indirect
