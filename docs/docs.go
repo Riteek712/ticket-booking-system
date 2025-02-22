@@ -536,13 +536,6 @@ const docTemplate = `{
                     "description": "Name of the event",
                     "type": "string"
                 },
-                "tickets": {
-                    "description": "Associated tickets",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/database.Ticket"
-                    }
-                },
                 "user_id": {
                     "type": "string"
                 }
@@ -584,38 +577,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phoneNumber": {
-                    "type": "string"
-                }
-            }
-        },
-        "database.Ticket": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "description": "Email of the ticket holder",
-                    "type": "string"
-                },
-                "event": {
-                    "description": "Relationship with Event",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/database.Event"
-                        }
-                    ]
-                },
-                "event_id": {
-                    "description": "ID of the event associated with the ticket",
-                    "type": "string"
-                },
-                "quantity": {
-                    "type": "integer"
-                },
-                "ticketID": {
-                    "description": "Unique ticket ID",
-                    "type": "string"
-                },
-                "user_id": {
-                    "description": "Number of tickets booked",
                     "type": "string"
                 }
             }

@@ -39,11 +39,6 @@ definitions:
       name:
         description: Name of the event
         type: string
-      tickets:
-        description: Associated tickets
-        items:
-          $ref: '#/definitions/database.Ticket'
-        type: array
       user_id:
         type: string
     type: object
@@ -71,27 +66,6 @@ definitions:
       password:
         type: string
       phoneNumber:
-        type: string
-    type: object
-  database.Ticket:
-    properties:
-      email:
-        description: Email of the ticket holder
-        type: string
-      event:
-        allOf:
-        - $ref: '#/definitions/database.Event'
-        description: Relationship with Event
-      event_id:
-        description: ID of the event associated with the ticket
-        type: string
-      quantity:
-        type: integer
-      ticketID:
-        description: Unique ticket ID
-        type: string
-      user_id:
-        description: Number of tickets booked
         type: string
     type: object
   database.TicketBookingReq:
