@@ -6,6 +6,8 @@ services:
     container_name: redis-container
     ports:
       - "6379:6379"
+    networks:
+      - backend
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -16,3 +18,28 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-container
+    restart: always
+    env_file:
+      - .env  # Load environment variables from .env file
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  postgres_data:
