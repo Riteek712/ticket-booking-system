@@ -13,8 +13,8 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq-container
     ports:
-      - "5672:5672"   # RabbitMQ message broker port
-      - "15672:15672" # RabbitMQ management UI
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -26,7 +26,7 @@ services:
     container_name: postgres-container
     restart: always
     env_file:
-      - .env  # Load environment variables from .env file
+      - .env
     ports:
       - "5432:5432"
     environment:
@@ -35,6 +35,25 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  app:
+    build: .
+    container_name: ticketing-service-container
+    restart: always
+    env_file:
+      - .env  
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    environment:
+      DATABASE_URL: "postgres://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE}?sslmode=disable"
+      REDIS_HOST: "redis:6379"
+      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/"
+    ports:
+      - "3000:3000"
     networks:
       - backend
 
